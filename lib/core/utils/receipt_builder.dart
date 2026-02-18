@@ -68,8 +68,10 @@ class ReceiptBuilder {
          await bluetooth.printCustom(name, 1, 0); // Item Name Left
          // Qty x Price ... Subtotal
          final qty = item['quantity'];
-         final price = currencyFormatter.format(item['price']);
-         final subtotal = currencyFormatter.format(item['subtotal'] ?? (item['price'] * qty));
+         final double priceVal = _parseDouble(item['price']);
+         final price = currencyFormatter.format(priceVal);
+         final double subtotalVal = _parseDouble(item['subtotal']);
+         final subtotal = currencyFormatter.format(subtotalVal > 0 ? subtotalVal : (priceVal * (qty is num ? qty : double.tryParse(qty.toString()) ?? 1)));
          
          await bluetooth.printLeftRight("$qty x $price", subtotal, 0);
       }
@@ -77,16 +79,16 @@ class ReceiptBuilder {
       await bluetooth.printCustom("--------------------------------", 1, 1);
 
       // Summary
-      await bluetooth.printLeftRight("Total :", currencyFormatter.format(transaction['total_amount']), 1);
+      await bluetooth.printLeftRight("Total :", currencyFormatter.format(_parseDouble(transaction['total_amount'])), 1);
       
       // Payment
       String paymentMethod = transaction['payment_method'] ?? 'cash';
-      await bluetooth.printLeftRight("Bayar ($paymentMethod):", currencyFormatter.format(transaction['amount_paid']), 0);
+      await bluetooth.printLeftRight("Bayar ($paymentMethod):", currencyFormatter.format(_parseDouble(transaction['amount_paid'])), 0);
       
       if (paymentMethod == 'utang') {
          await bluetooth.printCustom("** BELUM LUNAS - PIUTANG **", 3, 1);
       } else {
-         await bluetooth.printLeftRight("Kembali :", currencyFormatter.format(transaction['change_amount'] ?? 0), 0);
+         await bluetooth.printLeftRight("Kembali :", currencyFormatter.format(_parseDouble(transaction['change_amount'])), 0);
       }
 
       await bluetooth.printNewLine();
@@ -101,5 +103,14 @@ class ReceiptBuilder {
       }
       rethrow;
     }
+  }
+
+  double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+    return 0.0;
   }
 }
