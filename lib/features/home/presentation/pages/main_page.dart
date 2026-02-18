@@ -57,8 +57,14 @@ class _MainPageState extends State<MainPage> {
           context.read<DashboardBloc>().add(LoadDashboardData());
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundLight,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        child: Scaffold(
+          backgroundColor: AppColors.backgroundLight,
         body: IndexedStack(
           index: _currentIndex,
           children: _pages,
