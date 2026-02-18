@@ -64,7 +64,8 @@ class ReceiptBuilder {
       final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
       for (var item in items) {
-         await bluetooth.printCustom(item['product_name'], 1, 0); // Item Name Left
+         final name = item['product_name'] ?? (item['product']?['name'] ?? 'Unknown Product');
+         await bluetooth.printCustom(name, 1, 0); // Item Name Left
          // Qty x Price ... Subtotal
          final qty = item['quantity'];
          final price = currencyFormatter.format(item['price']);
