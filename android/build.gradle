@@ -9,14 +9,8 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
-subprojects {
-    project.evaluationDependsOn(":app")
-}
 
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
-
+// Fix for AGP 8.0+ needing namespace
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
@@ -27,4 +21,12 @@ subprojects {
             }
         }
     }
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
 }
