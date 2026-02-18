@@ -1,16 +1,28 @@
-# mobile_app
+# Kasir App Mobile
 
-A new Flutter project.
+Aplikasi mobile client untuk Kasir App (POS), dibangun menggunakan Flutter.
 
-## Getting Started
+## Fitur
+- Integrasi dengan Backend Laravel Kasir App
+- Kasir POS (Point of Sales)
+- Manajemen Transaksi & Riwayat
+- Support Printer Bluetooth & USB (WebUSB via Webview/Custom)
+- Scan Barcode
+- Manajemen Stok & Produk
 
-This project is a starting point for a Flutter application.
+## Instalasi
 
-A few resources to get you started if this is your first Flutter project:
+1.  Pastikan Flutter SDK sudah terinstall.
+2.  Clone repository ini via `git clone`.
+3.  Jalankan `flutter pub get` untuk menginstall dependencies.
+4.  Jalankan `flutter run` untuk debugging.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Build APK
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Untuk membuat file APK siap install (Release):
+
+```bash
+flutter build apk --release
+```
+
+Atau push ke branch `main`/`master` untuk otomatis build via GitHub Actions.
