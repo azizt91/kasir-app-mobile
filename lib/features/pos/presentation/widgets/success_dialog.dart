@@ -62,7 +62,7 @@ class SuccessDialog extends StatelessWidget {
               height: 48,
               child: ElevatedButton.icon(
                 onPressed: onPrint,
-                icon: const Icon(Icons.print_rounded, size: 20),
+                icon: const Icon(Icons.print_rounded, size: 20, color: Colors.white),
                 label: const Text(
                   'Cetak Struk',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
