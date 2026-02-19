@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_app/core/theme/app_colors.dart';
 import '../bloc/notification_bloc.dart';
 import '../bloc/notification_event.dart';
+import '../bloc/notification_state.dart'; // Import State
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
