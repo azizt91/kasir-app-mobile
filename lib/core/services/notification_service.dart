@@ -1,8 +1,9 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../injection_container.dart' as di; // Import DI
+import '../../features/auth/domain/repositories/auth_repository.dart'; // Import Repo
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -77,7 +78,31 @@ class NotificationService {
     // 5. Get Token (to send to server)
     String? token = await _firebaseMessaging.getToken();
     debugPrint("FCM Token: $token");
-    // TODO: Send this token to backend via API
+    
+    if (token != null) {
+      try {
+        // Use GetIt to get AuthRepository. 
+        // Note: NotificationService does not inject it via constructor to keep it simple singleton
+        // We import the sl from injection_container.dart
+        final authRepository = di.sl<AuthRepository>(); 
+        await authRepository.updateFcmToken(token);
+        debugPrint("FCM Token sent to backend");
+      } catch (e) {
+        debugPrint("Failed to sync FCM token: $e");
+      }
+    }
+    
+    // Listen for token refresh
+    _firebaseMessaging.onTokenRefresh.listen((newToken) async {
+       debugPrint("FCM Token Refreshed: $newToken");
+       try {
+          final authRepository = di.sl<AuthRepository>();
+          await authRepository.updateFcmToken(newToken);
+       } catch (e) {
+          debugPrint("Failed to sync new FCM token: $e");
+       }
+    });
+
   }
 
   void _showLocalNotification(RemoteMessage message) {

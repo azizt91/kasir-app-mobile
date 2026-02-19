@@ -176,9 +176,17 @@ class AuthWrapper extends StatelessWidget {
            // But let's keep it consistent with previous logic for now.
            // Better practice: do it in BlocListener in Main Page.
            // I'll leave it as is to minimize regression risk.
-           context.read<ProductBloc>().add(SyncProducts()); 
-           
-          return const MainPage();
+           context.read<ProductBloc>().add(SyncProducts()); // Keep existing
+            
+           // Sync FCM Token
+           NotificationService().getToken().then((token) {
+             if (token != null) {
+               context.read<AuthBloc>().add(AuthUpdateFcmToken(token));
+               debugPrint("AuthWrapper: Triggering FCM Token Sync");
+             }
+           });
+
+           return const MainPage();
         }
         return const LoginPage();
       },
