@@ -3,7 +3,9 @@ import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
+  Future<void> updateFcmToken(String token);
 }
+
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
@@ -37,6 +39,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } catch (e) {
       throw Exception(e.toString());
+    }
+  }
+
+  @override
+  Future<void> updateFcmToken(String token) async {
+    try {
+      await dio.post('/user/fcm-token', data: {'fcm_token': token});
+    } catch (e) {
+      // Ignore error or log it
+      print("Error updating FCM token: $e");
     }
   }
 }

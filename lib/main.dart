@@ -13,6 +13,8 @@ import 'features/stock/presentation/bloc/stock_bloc.dart';
 import 'features/pos/presentation/bloc/pos_bloc.dart';
 import 'features/receivable/presentation/bloc/receivable_bloc.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'features/notification/presentation/bloc/notification_bloc.dart'; // Import
+import 'features/notification/presentation/bloc/notification_event.dart'; // Import
 import 'features/history/presentation/pages/history_page.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Import
@@ -24,6 +26,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:flutter/services.dart'; // Import for SystemChrome
+import 'package:firebase_core/firebase_core.dart'; // Import Firebase
+import 'core/services/notification_service.dart'; // Import NotificationService
+// import 'firebase_options.dart'; // Removed because user uses google-services.json
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +55,16 @@ void main() async {
   }
   await di.init();
   await initializeDateFormatting('id_ID', null); // Initialize Locale
+  
+  // Initialize Notifications
+  // We use google-services.json, so no need for DefaultFirebaseOptions usually.
+  try {
+     await Firebase.initializeApp(); 
+     await NotificationService().initialize();
+  } catch (e) {
+     debugPrint("Firebase initialization failed: $e");
+  }
+
   runApp(const MyApp());
 }
 
@@ -77,6 +92,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => di.sl<DashboardBloc>(),
+        ),
+        BlocProvider(
+          create: (_) => di.sl<NotificationBloc>()..add(LoadNotifications()),
         ),
       ],
       child: MaterialApp(

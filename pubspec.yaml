@@ -59,6 +59,10 @@ dependencies:
   universal_html: ^2.2.4 # Useful for web
   flutter_dotenv: ^5.1.0 # Environment variables
   mobile_scanner: ^6.0.11
+  firebase_core: ^3.6.0 # Firebase Core
+  firebase_messaging: ^15.0.1 # Firebase Messaging
+  flutter_local_notifications: ^17.2.2 # Local Notifications for foreground
+
 
 
 dev_dependencies:

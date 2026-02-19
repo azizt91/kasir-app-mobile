@@ -6,4 +6,5 @@ abstract class AuthRepository {
   Future<Either<Failure, UserModel>> login(String email, String password);
   Future<void> logout();
   Future<Either<Failure, UserModel>> getCurrentUser();
+  Future<void> updateFcmToken(String token);
 }

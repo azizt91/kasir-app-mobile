@@ -15,6 +15,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<AuthUpdateFcmToken>(_onUpdateFcmToken);
+  }
+
+  Future<void> _onUpdateFcmToken(
+    AuthUpdateFcmToken event,
+    Emitter<AuthState> emit,
+  ) async {
+    await authRepository.updateFcmToken(event.token);
   }
 
   Future<void> _onLoginRequested(

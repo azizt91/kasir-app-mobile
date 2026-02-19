@@ -9,15 +9,13 @@ import 'package:mobile_app/features/stock/presentation/pages/stock_page.dart';
 import 'package:mobile_app/features/receivable/presentation/pages/receivable_page.dart';
 import 'package:mobile_app/features/product/presentation/bloc/product_bloc.dart'; // Import
 import 'package:mobile_app/features/stock/presentation/bloc/stock_bloc.dart'; // Import StockBloc
-import 'package:mobile_app/features/dashboard/presentation/bloc/dashboard_bloc.dart'; // Import DashboardBloc
+import 'package:mobile_app/core/services/notification_service.dart'; // Import NotificationService
+import 'package:mobile_app/features/auth/presentation/bloc/auth_bloc.dart'; // Import AuthBloc
+import 'package:mobile_app/features/auth/presentation/bloc/auth_event.dart'; // Import AuthEvent
+import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart'; // Import
+import 'package:mobile_app/features/notification/presentation/bloc/notification_event.dart'; // Import
 
-
-// History & Expense now accessed via "Others" or sub-navigation
-// import 'package:mobile_app/features/history/presentation/pages/history_page.dart'; 
-// import 'package:mobile_app/features/expense/presentation/pages/expense_page.dart';
-
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+// ...
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -34,6 +32,10 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+import 'package:firebase_messaging/firebase_messaging.dart'; // Import
+
+// ...
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,28 @@ class _MainPageState extends State<MainPage> {
     ];
     // Trigger Sync whenever MainPage is loaded (especially for fresh install)
     context.read<ProductBloc>().add(SyncProducts());
+    
+    // Sync FCM Token
+    _setupNotifications();
+
+    // Listen for foreground messages to refresh badge
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (mounted) {
+        context.read<NotificationBloc>().add(RefreshNotifications());
+        // NotificationService (initialized in main.dart) already handles showing the banner.
+      }
+    });
+  }
+
+  void _setupNotifications() async {
+    try {
+      String? token = await NotificationService().getToken();
+      if (token != null && mounted) {
+        context.read<AuthBloc>().add(AuthUpdateFcmToken(token));
+      }
+    } catch (e) {
+      debugPrint("Error getting FCM token: $e");
+    }
   }
 
   @override

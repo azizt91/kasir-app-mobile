@@ -20,3 +20,10 @@ class AuthLoginRequested extends AuthEvent {
 class AuthCheckRequested extends AuthEvent {}
 
 class AuthLogoutRequested extends AuthEvent {}
+
+class AuthUpdateFcmToken extends AuthEvent {
+  final String token;
+  const AuthUpdateFcmToken(this.token);
+  @override
+  List<Object> get props => [token];
+}

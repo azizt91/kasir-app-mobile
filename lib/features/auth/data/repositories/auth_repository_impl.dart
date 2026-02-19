@@ -57,4 +57,13 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(CacheFailure(e.toString()));
     }
   }
+
+  @override
+  Future<void> updateFcmToken(String token) async {
+    try {
+      await remoteDataSource.updateFcmToken(token);
+    } catch (e) {
+      // Ignore
+    }
+  }
 }

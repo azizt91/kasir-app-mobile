@@ -7,10 +7,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 
+import 'package:mobile_app/features/notification/presentation/pages/notification_page.dart';
+import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:mobile_app/features/notification/presentation/bloc/notification_state.dart';
+import 'package:mobile_app/features/notification/presentation/bloc/notification_event.dart'; // Import Event
+
 class DashboardPage extends StatelessWidget {
-  final VoidCallback? onGoToStock;
+  final VoidCallback onGoToStock;
   
-  const DashboardPage({super.key, this.onGoToStock});
+  const DashboardPage({super.key, required this.onGoToStock});
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +191,54 @@ class DashboardPage extends StatelessWidget {
           ),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
-                onPressed: () {},
+              BlocBuilder<NotificationBloc, NotificationState>(
+                builder: (context, notifState) {
+                  int unreadCount = 0;
+                  if (notifState is NotificationLoaded) {
+                    unreadCount = notifState.unreadCount;
+                  }
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotificationPage()),
+                          ).then((_) {
+                             // Refresh when back
+                             context.read<NotificationBloc>().add(RefreshNotifications());
+                          });
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              unreadCount > 99 ? '99+' : '$unreadCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(width: 8),
               BlocBuilder<AuthBloc, AuthState>(

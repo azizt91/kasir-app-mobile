@@ -155,5 +155,15 @@ Future<void> init() async {
   sl.registerFactory(() => ExpenseBloc(repository: sl()));
   sl.registerLazySingleton<ExpenseLocalDataSource>(() => ExpenseLocalDataSourceImpl(databaseHelper: DatabaseHelper.instance));
   sl.registerLazySingleton<ExpenseRemoteDataSource>(() => ExpenseRemoteDataSourceImpl(dio: sl()));
+  sl.registerLazySingleton<ExpenseRemoteDataSource>(() => ExpenseRemoteDataSourceImpl(dio: sl()));
   sl.registerLazySingleton<ExpenseRepositoryImpl>(() => ExpenseRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+
+  // -- Notification --
+  import 'package:mobile_app/features/notification/data/datasources/notification_remote_data_source.dart';
+  import 'package:mobile_app/features/notification/data/repositories/notification_repository.dart';
+  import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart';
+
+  sl.registerFactory(() => NotificationBloc(repository: sl()));
+  sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(dio: sl()));
+  sl.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(remoteDataSource: sl()));
 }
