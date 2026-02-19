@@ -19,9 +19,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<DashboardBloc>()..add(LoadDashboardData()),
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColors.backgroundLight,
         body: BlocBuilder<DashboardBloc, DashboardState>(
           builder: (context, state) {
@@ -47,11 +45,22 @@ class DashboardPage extends StatelessWidget {
             } else if (state is DashboardLoaded) {
               return _buildDashboardContent(context, state.data);
             }
-            return const Center(child: Text('No Data'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Tidak ada data dashboard.'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.read<DashboardBloc>().add(LoadDashboardData()),
+                     child: const Text("Muat Ulang"),
+                  )
+                ],
+              ),
+            );
           },
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildDashboardContent(BuildContext context, dynamic data) {
@@ -98,8 +107,7 @@ class DashboardPage extends StatelessWidget {
       child: RefreshIndicator(
         color: AppColors.primary,
         onRefresh: () async {
-          // context.read<DashboardBloc>().add(LoadDashboardData()); 
-          // Need to fix context access here or use a variable
+          context.read<DashboardBloc>().add(LoadDashboardData()); 
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 100), // Space for FAB/BottomNav

@@ -47,6 +47,7 @@ class _MainPageState extends State<MainPage> {
     ];
     // Trigger Sync whenever MainPage is loaded (especially for fresh install)
     context.read<ProductBloc>().add(SyncProducts());
+    context.read<DashboardBloc>().add(LoadDashboardData()); // Load Dashboard immediately
     
     // Sync FCM Token
     _setupNotifications();
