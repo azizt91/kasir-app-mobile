@@ -254,10 +254,9 @@ class DashboardPage extends StatelessWidget {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      );
+    }
 
   Widget _buildMainCard(
     String title, 
