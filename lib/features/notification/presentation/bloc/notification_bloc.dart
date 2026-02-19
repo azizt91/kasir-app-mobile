@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repositories/notification_repository.dart';
 import 'notification_event.dart';
+import 'notification_state.dart'; // Import State
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final NotificationRepository repository;
