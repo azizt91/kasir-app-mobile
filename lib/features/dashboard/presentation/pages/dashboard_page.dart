@@ -197,15 +197,14 @@ class DashboardPage extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
               BlocBuilder<NotificationBloc, NotificationState>(
                 builder: (context, notifState) {
-                  int unreadCount = 0;
+                  bool hasUnread = false;
                   if (notifState is NotificationLoaded) {
-                    unreadCount = notifState.unreadCount;
+                    hasUnread = notifState.unreadCount > 0;
                   }
                   return Stack(
+                    alignment: Alignment.center,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
@@ -214,32 +213,21 @@ class DashboardPage extends StatelessWidget {
                             context,
                             MaterialPageRoute(builder: (context) => const NotificationPage()),
                           ).then((_) {
+                             // Refresh when coming back
                              context.read<NotificationBloc>().add(RefreshNotifications());
                           });
                         },
                       ),
-                      if (unreadCount > 0)
+                      if (hasUnread)
                         Positioned(
-                          right: 8,
-                          top: 8,
+                          right: 12,
+                          top: 12,
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            width: 8,
+                            height: 8,
                             decoration: const BoxDecoration(
                               color: Colors.red,
                               shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
-                            ),
-                            child: Text(
-                              unreadCount > 99 ? '99+' : '$unreadCount',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
@@ -247,7 +235,7 @@ class DashboardPage extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(width: 8),
+                  const SizedBox(width: 8),
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   String initial = '?';
