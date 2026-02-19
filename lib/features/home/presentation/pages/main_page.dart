@@ -14,8 +14,10 @@ import 'package:mobile_app/features/auth/presentation/bloc/auth_bloc.dart'; // I
 import 'package:mobile_app/features/auth/presentation/bloc/auth_event.dart'; // Import AuthEvent
 import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart'; // Import
 import 'package:mobile_app/features/notification/presentation/bloc/notification_event.dart'; // Import
+import 'package:firebase_messaging/firebase_messaging.dart'; // Import
 
-// ...
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -31,10 +33,6 @@ class _MainPageState extends State<MainPage> {
       _currentIndex = index;
     });
   }
-
-import 'package:firebase_messaging/firebase_messaging.dart'; // Import
-
-// ...
 
   @override
   void initState() {

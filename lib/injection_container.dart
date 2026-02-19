@@ -61,6 +61,11 @@ import 'package:mobile_app/features/pos/presentation/bloc/pos_bloc.dart';
 import 'package:mobile_app/features/pos/data/repositories/customer_repository.dart';
 import 'package:mobile_app/features/others/presentation/bloc/customer_bloc.dart'; // Import
 
+// Notification Imports
+import 'package:mobile_app/features/notification/data/datasources/notification_remote_data_source.dart';
+import 'package:mobile_app/features/notification/data/repositories/notification_repository.dart';
+import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart';
+
 
 final sl = GetIt.instance;
 
@@ -159,10 +164,6 @@ Future<void> init() async {
   sl.registerLazySingleton<ExpenseRepositoryImpl>(() => ExpenseRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
 
   // -- Notification --
-  import 'package:mobile_app/features/notification/data/datasources/notification_remote_data_source.dart';
-  import 'package:mobile_app/features/notification/data/repositories/notification_repository.dart';
-  import 'package:mobile_app/features/notification/presentation/bloc/notification_bloc.dart';
-
   sl.registerFactory(() => NotificationBloc(repository: sl()));
   sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(dio: sl()));
   sl.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(remoteDataSource: sl()));

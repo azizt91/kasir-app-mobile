@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../bloc/dashboard_bloc.dart';
+import 'package:mobile_app/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import '../models/notification_model.dart';
-import '../../../../core/network/api_client.dart'; // Assuming exist
+// import '../../../../core/network/api_client.dart'; // Removed
 // If ApiClient doesn't exist, use Dio directly or find where Dio is provided.
 // I'll check main.dart or injection container later. For now, assume Dio is passed.
 
