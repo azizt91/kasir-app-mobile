@@ -251,12 +251,12 @@ class DashboardPage extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+              ), // End Auth Bloc
+            ], // End Row children
+          ), // End Row
+        ), // End Padding
+      ); // End return
+  }
 
   Widget _buildMainCard(
     String title, 
