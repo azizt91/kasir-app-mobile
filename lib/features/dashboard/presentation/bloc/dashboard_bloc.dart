@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mobile_app/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:mobile_app/features/dashboard/data/models/dashboard_model.dart';
 import 'package:mobile_app/features/dashboard/domain/repositories/dashboard_repository.dart';
 
 // Events

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../datasources/dashboard_remote_data_source.dart';
+import '../models/dashboard_model.dart';
 import 'package:mobile_app/features/transaction/data/datasources/transaction_local_data_source.dart';
 
 import 'package:mobile_app/features/dashboard/domain/repositories/dashboard_repository.dart';
