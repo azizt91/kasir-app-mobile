@@ -40,7 +40,7 @@ class NotificationPage extends StatelessWidget {
       ),
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
-          if (state is NotificationLoading) {
+          if (state is NotificationLoading || state is NotificationInitial) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is NotificationError) {
             return Center(child: Text(state.message));

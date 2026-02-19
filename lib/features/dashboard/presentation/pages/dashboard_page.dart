@@ -199,14 +199,13 @@ class DashboardPage extends StatelessWidget {
           ),
           Row(
             children: [
-              // BlocBuilder<NotificationBloc, NotificationState>(
-              //   builder: (context, notifState) {
-                  // int unreadCount = 0;
-                  // if (notifState is NotificationLoaded) {
-                  //   unreadCount = notifState.unreadCount;
-                  // }
-                  // return 
-                  Stack(
+              BlocBuilder<NotificationBloc, NotificationState>(
+                builder: (context, notifState) {
+                  int unreadCount = 0;
+                  if (notifState is NotificationLoaded) {
+                    unreadCount = notifState.unreadCount;
+                  }
+                  return Stack(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
@@ -219,35 +218,35 @@ class DashboardPage extends StatelessWidget {
                           });
                         },
                       ),
-                      // if (unreadCount > 0)
-                      //   Positioned(
-                      //     right: 8,
-                      //     top: 8,
-                      //     child: Container(
-                      //       padding: const EdgeInsets.all(4),
-                      //       decoration: const BoxDecoration(
-                      //         color: Colors.red,
-                      //         shape: BoxShape.circle,
-                      //       ),
-                      //       constraints: const BoxConstraints(
-                      //         minWidth: 16,
-                      //         minHeight: 16,
-                      //       ),
-                      //       child: Text(
-                      //         unreadCount > 99 ? '99+' : '$unreadCount',
-                      //         style: const TextStyle(
-                      //           color: Colors.white,
-                      //           fontSize: 10,
-                      //           fontWeight: FontWeight.bold,
-                      //         ),
-                      //         textAlign: TextAlign.center,
-                      //       ),
-                      //     ),
-                      //   ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              unreadCount > 99 ? '99+' : '$unreadCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
                     ],
-                  ),
-              //   },
-              // ),
+                  );
+                },
+              ),
               const SizedBox(width: 8),
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
