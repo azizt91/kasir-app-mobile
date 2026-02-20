@@ -1,16 +1,9 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/repositories/expense_repository.dart'; // Import Interface
 import '../datasources/expense_data_source.dart';
 import '../models/expense_model.dart';
 import 'dart:convert';
-
-abstract class ExpenseRepository {
-  Future<Either<Failure, List<ExpenseModel>>> getExpenses();
-  Future<Either<Failure, void>> createExpense(Map<String, dynamic> data);
-  Future<Either<Failure, void>> updateExpense(int id, Map<String, dynamic> data);
-  Future<Either<Failure, void>> deleteExpense(int id);
-  Future<void> syncPendingExpenses();
-}
 
 class ExpenseRepositoryImpl implements ExpenseRepository {
   final ExpenseRemoteDataSource remoteDataSource;
