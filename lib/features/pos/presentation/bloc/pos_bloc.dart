@@ -293,12 +293,23 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     
     result.fold(
       (failure) => emit(state.copyWith(isLoading: false, error: failure.message)),
-      (_) {
+      (serverData) {
+        // If server returned data, use its transaction_code (TRX...) 
+        // instead of the OFFLINE-... placeholder
+        final printData = Map<String, dynamic>.from(transactionData);
+        if (serverData != null) {
+          printData['transaction_code'] = serverData['transaction_code'] ?? transactionData['transaction_code'];
+          // Also update items with server data if available
+          if (serverData['items'] != null) {
+            printData['items'] = serverData['items'];
+          }
+        }
+
         emit(state.copyWith(
             isLoading: false, 
             isSuccess: true, 
             cartItems: [],
-            lastTransaction: transactionData, 
+            lastTransaction: printData, 
         ));
         // Reload products to reflect updated stock
         add(LoadPosData());

@@ -48,16 +48,16 @@ class ReceiptBuilder {
       await bluetooth.printCustom(settings['store_phone'] ?? '-', 0, 1);
       await bluetooth.printNewLine();
 
-      // Info
+      // Info — use printCustom with left alignment for clean formatting
       final dateFormat = DateFormat('dd-MM-yyyy HH:mm');
       final String date = transaction['created_at'] != null 
           ? dateFormat.format(DateTime.parse(transaction['created_at']).toLocal()) 
           : dateFormat.format(DateTime.now());
           
-      await bluetooth.printLeftRight("Tgl: $date", "", 0);
-      await bluetooth.printLeftRight("No: ${transaction['transaction_code'] ?? '-'}", "", 0);
-      await bluetooth.printLeftRight("Kasir: ${transaction['user_name'] ?? 'Admin'}", "", 0); // Need to pass user name
-      await bluetooth.printLeftRight("Pelanggan: ${transaction['customer_name'] ?? 'Umum'}", "", 0);
+      await bluetooth.printCustom("Tgl : $date", 0, 0);
+      await bluetooth.printCustom("No  : ${transaction['transaction_code'] ?? '-'}", 0, 0);
+      await bluetooth.printCustom("Kasir     : ${transaction['user_name'] ?? 'Admin'}", 0, 0);
+      await bluetooth.printCustom("Pelanggan : ${transaction['customer_name'] ?? 'Umum'}", 0, 0);
       await bluetooth.printCustom("--------------------------------", 1, 1);
 
       // Body
@@ -83,7 +83,7 @@ class ReceiptBuilder {
       
       // Payment
       String paymentMethod = transaction['payment_method'] ?? 'cash';
-      await bluetooth.printLeftRight("Bayar ($paymentMethod):", currencyFormatter.format(_parseDouble(transaction['amount_paid'])), 0);
+      await bluetooth.printLeftRight("Bayar ($paymentMethod) :", currencyFormatter.format(_parseDouble(transaction['amount_paid'])), 0);
       
       if (paymentMethod == 'utang') {
          await bluetooth.printCustom("** BELUM LUNAS - PIUTANG **", 3, 1);

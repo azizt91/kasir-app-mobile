@@ -7,7 +7,7 @@ import 'package:mobile_app/features/history/data/models/transaction_model.dart';
 import 'dart:convert';
 
 abstract class TransactionRepository {
-  Future<Either<Failure, void>> submitTransaction(Map<String, dynamic> transactionData);
+  Future<Either<Failure, Map<String, dynamic>?>> submitTransaction(Map<String, dynamic> transactionData);
   Future<String?> syncPendingTransactions();
   Future<Either<Failure, List<TransactionModel>>> getTransactions();
   Future<Either<Failure, void>> voidTransaction(int id);
@@ -23,7 +23,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   });
 
   @override
-  Future<Either<Failure, void>> submitTransaction(Map<String, dynamic> transactionData) async {
+  Future<Either<Failure, Map<String, dynamic>?>> submitTransaction(Map<String, dynamic> transactionData) async {
     // 1. Always save to local DB first (Offline First)
     final pendingTx = PendingTransactionModel(
       payload: transactionData,
@@ -35,20 +35,59 @@ class TransactionRepositoryImpl implements TransactionRepository {
       await localDataSource.cachePendingTransaction(pendingTx);
       print('DEBUG SYNC: Transaction saved to local DB');
       
-      // 2. Try to sync immediately
-      final syncError = await syncPendingTransactions();
+      // 2. Try to sync immediately and get the server response
+      final syncResult = await syncPendingTransactionsWithResult();
       
-      if (syncError != null) {
-        print('DEBUG SYNC: Sync failed but local saved: $syncError');
-        // Still return success since local save worked (offline-first)
-        // But log the sync error for debugging
+      if (syncResult != null) {
+        print('DEBUG SYNC: Synced with server, got transaction_code: ${syncResult['transaction_code']}');
+        return Right(syncResult);
       }
       
+      // Sync failed or no result, return null (offline mode)
       return const Right(null);
     } catch (e) {
       print('DEBUG SYNC: Local save failed: $e');
       return Left(CacheFailure(e.toString()));
     }
+  }
+
+  /// Sync pending transactions and return the last synced transaction data
+  Future<Map<String, dynamic>?> syncPendingTransactionsWithResult() async {
+    final pendingTransactions = await localDataSource.getPendingTransactions();
+    print('DEBUG SYNC: Found ${pendingTransactions.length} pending transactions');
+    
+    Map<String, dynamic>? lastSyncedData;
+
+    for (var tx in pendingTransactions) {
+      try {
+        print('DEBUG SYNC: Syncing TX id=${tx.id}, payload keys=${tx.payload.keys.toList()}');
+        final syncedTx = await remoteDataSource.sendTransaction(tx.payload);
+        print('DEBUG SYNC: ✅ Synced successfully! Server ID=${syncedTx.id}, Code=${syncedTx.transactionCode}');
+        
+        // Save the synced transaction data to return to caller
+        lastSyncedData = syncedTx.toJson();
+        
+        // 1. Cache the synced transaction locally
+        await localDataSource.upsertTransactions([syncedTx]);
+        
+        // 2. Delete from pending
+        if (tx.id != null) {
+          await localDataSource.deletePendingTransaction(tx.id!);
+        }
+      } catch (e) {
+        print('DEBUG SYNC: ❌ Sync FAILED for tx id=${tx.id}: $e');
+        
+        final errorStr = e.toString();
+        if (errorStr.contains('422') || errorStr.contains('Stok') || errorStr.contains('Nominal')) {
+          print('DEBUG SYNC: Removing stuck TX id=${tx.id} (bad data, will never sync)');
+          if (tx.id != null) {
+            await localDataSource.deletePendingTransaction(tx.id!);
+          }
+        }
+      }
+    }
+    
+    return lastSyncedData;
   }
 
   @override

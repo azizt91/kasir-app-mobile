@@ -108,6 +108,18 @@ class TransactionModel extends Equatable {
     };
   }
 
+  /// Returns the full data map suitable for receipt printing
+  Map<String, dynamic> toJson() {
+    final data = Map<String, dynamic>.from(payload);
+    data['id'] = id;
+    data['transaction_code'] = transactionCode;
+    data['total_amount'] = totalAmount;
+    data['payment_method'] = paymentMethod;
+    data['created_at'] = createdAt;
+    data['status'] = status;
+    return data;
+  }
+
   @override
   List<Object?> get props => [id, transactionCode, totalAmount, isSynced, status];
 }
