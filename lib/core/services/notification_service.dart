@@ -44,6 +44,13 @@ class NotificationService {
       debugPrint('FCM: User declined or has not accepted permission');
     }
 
+    // CRITICAL: Allow FCM to show notifications even when app is in foreground
+    await _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
     // 2. Initialize Local Notifications (for foreground)
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
