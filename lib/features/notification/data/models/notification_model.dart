@@ -24,8 +24,8 @@ class NotificationModel extends Equatable {
       title: data['title'] ?? 'Notification',
       body: data['body'] ?? '',
       data: data,
-      readAt: json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
-      createdAt: DateTime.parse(json['created_at']),
+      readAt: json['read_at'] != null ? DateTime.parse(json['read_at']).toLocal() : null,
+      createdAt: DateTime.parse(json['created_at']).toLocal(),
     );
   }
 
