@@ -38,10 +38,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDBL2U51gWm-N3KyXljY-TwWVk740EV_HY',
-    appId: '1:8000388427:android:0256e50c546629c44dbcce',
-    messagingSenderId: '8000388427',
-    projectId: 'kasirapp-client',
-    storageBucket: 'kasirapp-client.firebasestorage.app',
+    apiKey: 'AIzaSyC2HH2EtXYFR50LE90E3Oe3DeepdXZSIek',
+    appId: '1:807571446623:android:688b91318da925a1a1f4ea',
+    messagingSenderId: '807571446623',
+    projectId: 'push-notification-648ff',
+    storageBucket: 'push-notification-648ff.firebasestorage.app',
   );
 }

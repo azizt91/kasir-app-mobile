@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "807571446623",
-    "project_id": "push-notification-648ff",
-    "storage_bucket": "push-notification-648ff.firebasestorage.app"
+    "project_number": "8000388427",
+    "project_id": "kasirapp-client",
+    "storage_bucket": "kasirapp-client.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:807571446623:android:688b91318da925a1a1f4ea",
+        "mobilesdk_app_id": "1:8000388427:android:0256e50c546629c44dbcce",
         "android_client_info": {
           "package_name": "com.example.mobile_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC2HH2EtXYFR50LE90E3Oe3DeepdXZSIek"
+          "current_key": "AIzaSyDBL2U51gWm-N3KyXljY-TwWVk740EV_HY"
         }
       ],
       "services": {

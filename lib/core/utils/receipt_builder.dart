@@ -54,9 +54,9 @@ class ReceiptBuilder {
           ? dateFormat.format(DateTime.parse(transaction['created_at']).toLocal()) 
           : dateFormat.format(DateTime.now());
           
-      await bluetooth.printCustom("Tgl : $date", 0, 0);
-      await bluetooth.printCustom("No  : ${transaction['transaction_code'] ?? '-'}", 0, 0);
-      await bluetooth.printCustom("Kasir     : ${transaction['user_name'] ?? 'Admin'}", 0, 0);
+      await bluetooth.printCustom("Tgl       : $date", 0, 0);
+      await bluetooth.printCustom("No        : ${transaction['transaction_code'] ?? '-'}", 0, 0);
+      await bluetooth.printCustom("Sales     : ${transaction['user_name'] ?? 'Admin'}", 0, 0);
       await bluetooth.printCustom("Pelanggan : ${transaction['customer_name'] ?? 'Umum'}", 0, 0);
       await bluetooth.printCustom("--------------------------------", 1, 1);
 
