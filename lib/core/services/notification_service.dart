@@ -20,11 +20,9 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
-    // 1. Initialize Firebase App (Must be called before using Firebase services)
-    // Note: ensure WidgetsFlutterBinding.ensureInitialized() is called in main.dart
-    await Firebase.initializeApp();
+    // Note: Firebase.initializeApp() is called in main.dart, no need to call again here.
 
-    // 2. Request Permission
+    // 1. Request Permission
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,

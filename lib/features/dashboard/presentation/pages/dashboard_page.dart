@@ -183,6 +183,7 @@ class DashboardPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Left: Title + Date
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -197,61 +198,68 @@ class DashboardPage extends StatelessWidget {
               ),
             ],
           ),
-          // BlocBuilder<NotificationBloc, NotificationState>(
-          //   builder: (context, notifState) {
-          //     bool hasUnread = false;
-          //     if (notifState is NotificationLoaded) {
-          //       hasUnread = notifState.unreadCount > 0;
-          //     }
-          //     return Stack(
-          //       alignment: Alignment.center,
-          //       children: [
-                   IconButton(
-                    icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const NotificationPage()),
-                      ).then((_) {
-                        // Refresh when coming back
-                        // context.read<NotificationBloc>().add(RefreshNotifications());
-                      });
-                    },
-                  ),
-          //         if (hasUnread)
-          //           Positioned(
-          //             right: 12,
-          //             top: 12,
-          //             child: Container(
-          //               width: 8,
-          //               height: 8,
-          //               decoration: const BoxDecoration(
-          //                 color: Colors.red,
-          //                 shape: BoxShape.circle,
-          //               ),
-          //             ),
-          //           ),
-          //       ],
-          //     );
-          //   },
-          // ),
-          const SizedBox(width: 8),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) {
-              String initial = '?';
-              if (state is AuthAuthenticated) {
-                initial = state.user.name.isNotEmpty ? state.user.name[0].toUpperCase() : '?';
-              }
-              return CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primary,
-                child: Text(
-                  initial,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              );
-            },
-          )
+          // Right: Bell + Avatar grouped together
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Bell Icon with Red Dot
+              BlocBuilder<NotificationBloc, NotificationState>(
+                builder: (context, notifState) {
+                  int unreadCount = 0;
+                  if (notifState is NotificationLoaded) {
+                    unreadCount = notifState.unreadCount;
+                  }
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none, color: AppColors.textDark),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotificationPage()),
+                          ).then((_) {
+                            context.read<NotificationBloc>().add(RefreshNotifications());
+                          });
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 10,
+                          top: 10,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(width: 4),
+              // Avatar
+              BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  String initial = '?';
+                  if (state is AuthAuthenticated) {
+                    initial = state.user.name.isNotEmpty ? state.user.name[0].toUpperCase() : '?';
+                  }
+                  return CircleAvatar(
+                    radius: 20,
+                    backgroundColor: AppColors.primary,
+                    child: Text(
+                      initial,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );
