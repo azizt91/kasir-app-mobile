@@ -29,6 +29,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/services/notification_service.dart';
+import 'firebase_options.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,7 +86,9 @@ class _AppStarterState extends State<AppStarter> {
 
     // 6. Firebase & Notifications
     try {
-       await Firebase.initializeApp(); 
+       await Firebase.initializeApp(
+         options: DefaultFirebaseOptions.currentPlatform,
+       );
        await NotificationService().initialize();
     } catch (e) {
        debugPrint("Firebase/Notification initialization failed: $e");
