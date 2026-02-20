@@ -160,8 +160,8 @@ Future<void> init() async {
   sl.registerFactory(() => ExpenseBloc(repository: sl()));
   sl.registerLazySingleton<ExpenseLocalDataSource>(() => ExpenseLocalDataSourceImpl(databaseHelper: DatabaseHelper.instance));
   sl.registerLazySingleton<ExpenseRemoteDataSource>(() => ExpenseRemoteDataSourceImpl(dio: sl()));
-  sl.registerLazySingleton<ExpenseRemoteDataSource>(() => ExpenseRemoteDataSourceImpl(dio: sl()));
-  sl.registerLazySingleton<ExpenseRepositoryImpl>(() => ExpenseRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+  // Removed duplicate RemoteDataSource line
+  sl.registerLazySingleton<ExpenseRepository>(() => ExpenseRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
 
   // -- Notification --
   sl.registerFactory(() => NotificationBloc(repository: sl()));

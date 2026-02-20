@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/repositories/expense_repository_impl.dart';
+import '../../domain/repositories/expense_repository.dart';
 import '../../data/models/expense_model.dart';
 
 // Events
@@ -77,7 +77,7 @@ class ExpenseOperationSuccess extends ExpenseState {
 
 // Bloc
 class ExpenseBloc extends Bloc<ExpenseEvent, ExpenseState> {
-  final ExpenseRepositoryImpl repository;
+  final ExpenseRepository repository; // Change to Interface
 
   ExpenseBloc({required this.repository}) : super(ExpenseInitial()) {
     on<LoadExpenses>(_onLoadExpenses);
