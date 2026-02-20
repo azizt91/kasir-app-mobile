@@ -54,6 +54,7 @@ import 'package:mobile_app/features/receivable/presentation/bloc/receivable_bloc
 // Data Sources are in one file
 import 'package:mobile_app/features/expense/data/datasources/expense_data_source.dart';
 import 'package:mobile_app/features/expense/data/repositories/expense_repository_impl.dart';
+import 'package:mobile_app/features/expense/domain/repositories/expense_repository.dart'; // Import Interface
 import 'package:mobile_app/features/expense/presentation/bloc/expense_bloc.dart';
 
 // POS

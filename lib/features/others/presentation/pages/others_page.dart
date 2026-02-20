@@ -10,6 +10,7 @@ import 'package:mobile_app/features/history/presentation/pages/history_page.dart
 import 'package:mobile_app/features/others/presentation/pages/customer_page.dart';
 import 'package:mobile_app/features/expense/presentation/pages/expense_page.dart';
 import 'package:mobile_app/features/expense/data/repositories/expense_repository_impl.dart';
+import 'package:mobile_app/features/expense/domain/repositories/expense_repository.dart'; // Add Interface
 import 'package:mobile_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:mobile_app/features/product/data/repositories/sync_repository_impl.dart';
 import 'package:mobile_app/features/transaction/data/repositories/transaction_repository_impl.dart';
