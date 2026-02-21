@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../bloc/history_bloc.dart';
 import 'package:mobile_app/core/theme/app_colors.dart';
 import 'package:mobile_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:mobile_app/features/auth/presentation/bloc/auth_state.dart';
 
 class HistoryDetailModal extends StatelessWidget {
   final TransactionModel transaction;
