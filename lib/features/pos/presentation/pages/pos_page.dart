@@ -594,6 +594,22 @@ class PosView extends StatelessWidget {
       );
     }
   }
+
+  void _showVariantPicker(BuildContext context, String groupName, String? groupImage, List<ProductModel> variants) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => VariantPickerSheet(
+        groupName: groupName,
+        groupImage: groupImage,
+        variants: variants,
+        onVariantSelected: (variant) {
+          context.read<PosBloc>().add(AddToCart(variant));
+        },
+      ),
+    );
+  }
 }
 
 class CartModal extends StatefulWidget {
@@ -966,23 +982,6 @@ class _CartModalState extends State<CartModal> {
       },
     );
   }
-
-  void _showVariantPicker(BuildContext context, String groupName, String? groupImage, List<ProductModel> variants) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => VariantPickerSheet(
-        groupName: groupName,
-        groupImage: groupImage,
-        variants: variants,
-        onVariantSelected: (variant) {
-          context.read<PosBloc>().add(AddToCart(variant));
-        },
-      ),
-    );
-  }
-
 
 }
 
