@@ -351,8 +351,8 @@ class PosView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  // Minus Button (Bottom Right) - ONLY visible when Qty > 0
-                  if (cartQty > 0)
+                  // Minus Button (Bottom Right) - ONLY for single products (not variant groups)
+                  if (cartQty > 0 && !isGroup)
                     Positioned(
                         bottom: 8,
                         right: 8,
@@ -601,6 +601,18 @@ class PosView extends StatelessWidget {
   }
 
   void _showVariantPicker(BuildContext context, String groupName, String? groupImage, List<ProductModel> variants) {
+    // Build cart quantities map from current state
+    final cartItems = context.read<PosBloc>().state.cartItems;
+    final Map<int, int> cartQuantities = {};
+    for (final variant in variants) {
+      try {
+        final cartItem = cartItems.firstWhere((c) => c.product.id == variant.id);
+        cartQuantities[variant.id] = cartItem.quantity;
+      } catch (_) {
+        cartQuantities[variant.id] = 0;
+      }
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -609,8 +621,19 @@ class PosView extends StatelessWidget {
         groupName: groupName,
         groupImage: groupImage,
         variants: variants,
-        onVariantSelected: (variant) {
-          context.read<PosBloc>().add(AddToCart(variant));
+        cartQuantities: cartQuantities,
+        onQuantityChanged: (variant, newQty) {
+          // Find current qty in cart
+          final currentCartItems = context.read<PosBloc>().state.cartItems;
+          final existingIndex = currentCartItems.indexWhere((c) => c.product.id == variant.id);
+          
+          if (existingIndex >= 0) {
+            // Already in cart — update quantity
+            context.read<PosBloc>().add(UpdateCartQuanity(variant, newQty));
+          } else if (newQty > 0) {
+            // Not in cart yet — add with specified quantity
+            context.read<PosBloc>().add(AddToCart(variant, quantity: newQty));
+          }
         },
       ),
     );
