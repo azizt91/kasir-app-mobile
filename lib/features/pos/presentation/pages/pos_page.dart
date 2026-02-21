@@ -14,6 +14,7 @@ import '../widgets/success_dialog.dart'; // Import
 import 'package:intl/intl.dart';
 import '../widgets/payment_modal.dart'; // Add import
 import '../widgets/cart_widget.dart'; // Add import
+import '../widgets/variant_picker_sheet.dart'; // Variant picker
 import '../../../../core/theme/app_colors.dart';
 
 class PosPage extends StatelessWidget {
@@ -180,6 +181,71 @@ class PosView extends StatelessWidget {
     );
   }
 
+  /// Groups filtered products by productGroupId.
+  /// Products with has_variants group show as one card.
+  /// Single products (no group) show individually.
+  List<_DisplayItem> _groupProducts(List<ProductModel> products, List<CartItem> cartItems) {
+    final Map<int, List<ProductModel>> grouped = {};
+    final List<_DisplayItem> displayItems = [];
+
+    for (final product in products) {
+      if (product.productGroupId != null && product.variantName != null && product.variantName!.isNotEmpty) {
+        // This product belongs to a variant group
+        grouped.putIfAbsent(product.productGroupId!, () => []).add(product);
+      } else {
+        // Single product without variants
+        int qty = 0;
+        try {
+          final cartItem = cartItems.firstWhere((c) => c.product.id == product.id);
+          qty = cartItem.quantity;
+        } catch (_) {}
+        displayItems.add(_DisplayItem(
+          product: product,
+          variants: [],
+          totalCartQty: qty,
+        ));
+      }
+    }
+
+    // Process variant groups
+    for (final entry in grouped.entries) {
+      final variants = entry.value;
+      if (variants.length <= 1) {
+        // Only 1 variant in group — treat as single product
+        final product = variants.first;
+        int qty = 0;
+        try {
+          final cartItem = cartItems.firstWhere((c) => c.product.id == product.id);
+          qty = cartItem.quantity;
+        } catch (_) {}
+        displayItems.add(_DisplayItem(
+          product: product,
+          variants: [],
+          totalCartQty: qty,
+        ));
+      } else {
+        // Multiple variants: show group card
+        // Use group name (strip variant suffix from first product name)
+        final representative = variants.first;
+        // Calculate total cart qty across all variants
+        int totalQty = 0;
+        for (final v in variants) {
+          try {
+            final cartItem = cartItems.firstWhere((c) => c.product.id == v.id);
+            totalQty += cartItem.quantity;
+          } catch (_) {}
+        }
+        displayItems.add(_DisplayItem(
+          product: representative,
+          variants: variants,
+          totalCartQty: totalQty,
+        ));
+      }
+    }
+
+    return displayItems;
+  }
+
   Widget _buildProductGrid(BuildContext context) {
     final isTablet = _isTabletLandscape(context);
     final crossAxisCount = isTablet ? 3 : 2;
@@ -190,6 +256,8 @@ class PosView extends StatelessWidget {
         if (state.isLoading) return const Center(child: CircularProgressIndicator());
         if (state.filteredProducts.isEmpty) return const Center(child: Text('Tidak ada produk'));
 
+        final displayItems = _groupProducts(state.filteredProducts, state.cartItems);
+
         return GridView.builder(
           padding: const EdgeInsets.all(16.0),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -198,29 +266,42 @@ class PosView extends StatelessWidget {
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
           ),
-          itemCount: state.filteredProducts.length,
+          itemCount: displayItems.length,
           itemBuilder: (context, index) {
-            final product = state.filteredProducts[index];
-            // Find cart quantity
-            int qty = 0;
-            try {
-               final cartItem = state.cartItems.firstWhere((c) => c.product.id == product.id);
-               qty = cartItem.quantity;
-            } catch (_) {}
-
-            return _buildProductCard(context, product, qty);
+            final item = displayItems[index];
+            return _buildProductCard(context, item.product, item.totalCartQty, item.isGroup ? item.variants : null);
           },
         );
       },
     );
   }
 
-  Widget _buildProductCard(BuildContext context, ProductModel product, int cartQty) {
+  Widget _buildProductCard(BuildContext context, ProductModel product, int cartQty, [List<ProductModel>? variants]) {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final isGroup = variants != null && variants.length > 1;
+    
+    // For groups: derive clean group name (remove variant suffix like " (Hitam - M)")
+    String displayName = product.name;
+    if (isGroup && product.variantName != null) {
+      displayName = product.name.replaceAll(' (${product.variantName})', '');
+    }
+    // For groups: calculate total stock and price range
+    int displayStock = product.stock;
+    double minPrice = product.sellingPrice;
+    double maxPrice = product.sellingPrice;
+    if (isGroup) {
+      displayStock = variants!.fold(0, (sum, v) => sum + v.stock);
+      minPrice = variants.map((v) => v.sellingPrice).reduce((a, b) => a < b ? a : b);
+      maxPrice = variants.map((v) => v.sellingPrice).reduce((a, b) => a > b ? a : b);
+    }
     
     return GestureDetector(
       onTap: () {
-        context.read<PosBloc>().add(AddToCart(product));
+        if (isGroup) {
+          _showVariantPicker(context, displayName, product.image, variants!);
+        } else {
+          context.read<PosBloc>().add(AddToCart(product));
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -309,11 +390,20 @@ class PosView extends StatelessWidget {
                           children: [
 
                                Text(
-                                  product.name,
+                                  displayName,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                 ),
+                                // Variant count indicator
+                                if (isGroup)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      '${variants!.length} varian',
+                                      style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+                                    ),
+                                  ),
                           ],
                       ),
                       // Price & Stock
@@ -322,7 +412,9 @@ class PosView extends StatelessWidget {
                           children: [
                                Flexible(
                                  child: Text(
-                                    currencyFormatter.format(product.sellingPrice),
+                                    isGroup && minPrice != maxPrice
+                                        ? '${currencyFormatter.format(minPrice)} ~'
+                                        : currencyFormatter.format(minPrice),
                                     style: const TextStyle(color: Color(0xFF1B9C5E), fontWeight: FontWeight.bold, fontSize: 14),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -335,7 +427,7 @@ class PosView extends StatelessWidget {
                                        borderRadius: BorderRadius.circular(4),
                                    ),
                                    child: Text(
-                                       'Stok: ${product.stock}',
+                                       'Stok: $displayStock',
                                        style: const TextStyle(fontSize: 10, color: Color(0xFF1B9C5E), fontWeight: FontWeight.bold),
                                    ),
                                )
@@ -875,6 +967,37 @@ class _CartModalState extends State<CartModal> {
     );
   }
 
+  void _showVariantPicker(BuildContext context, String groupName, String? groupImage, List<ProductModel> variants) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => VariantPickerSheet(
+        groupName: groupName,
+        groupImage: groupImage,
+        variants: variants,
+        onVariantSelected: (variant) {
+          context.read<PosBloc>().add(AddToCart(variant));
+        },
+      ),
+    );
+  }
 
 
+}
+
+/// Helper class for display items in the product grid.
+/// Can represent a single product or a variant group.
+class _DisplayItem {
+  final ProductModel product; // Representative product (or single product)
+  final List<ProductModel> variants; // Empty for single, populated for group
+  final int totalCartQty;
+
+  bool get isGroup => variants.length > 1;
+
+  const _DisplayItem({
+    required this.product,
+    required this.variants,
+    required this.totalCartQty,
+  });
 }
