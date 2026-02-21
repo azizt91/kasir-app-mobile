@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../bloc/history_bloc.dart';
 import 'package:mobile_app/core/theme/app_colors.dart';
+import 'package:mobile_app/features/auth/presentation/bloc/auth_bloc.dart';
 
 class HistoryDetailModal extends StatelessWidget {
   final TransactionModel transaction;
@@ -40,11 +41,13 @@ class _HistoryDetailViewState extends State<HistoryDetailView> {
     
     try {
        final receiptBuilder = ReceiptBuilder();
-       final settings = {
-         'store_name': 'Minimarket POS', 
-         'store_address': 'Jl. Contoh No. 123', 
-         'store_phone': '08123456789'
-       };
+       
+       // Get settings from AuthBloc (database)
+       final authState = context.read<AuthBloc>().state;
+       Map<String, dynamic> settings = {};
+       if (authState is AuthAuthenticated) {
+         settings = authState.user.settings;
+       }
 
        final itemList = widget.transaction.payload['items'] as List;
        

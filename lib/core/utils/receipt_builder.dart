@@ -92,9 +92,29 @@ class ReceiptBuilder {
       }
 
       await bluetooth.printNewLine();
-      await bluetooth.printCustom("Terima Kasih", 1, 1);
-      await bluetooth.printCustom("Barang yang sudah dibeli", 0, 1);
-      await bluetooth.printCustom("tidak dapat ditukar/dikembalikan", 0, 1);
+      // Footer — use store_description from settings
+      final storeDescription = settings['store_description'] ?? '';
+      if (storeDescription.toString().isNotEmpty) {
+        // Split long description into lines of ~32 chars for thermal printer
+        final desc = storeDescription.toString();
+        final words = desc.split(' ');
+        String line = '';
+        for (final word in words) {
+          if ((line + ' ' + word).trim().length > 32) {
+            await bluetooth.printCustom(line.trim(), 0, 1);
+            line = word;
+          } else {
+            line = line.isEmpty ? word : '$line $word';
+          }
+        }
+        if (line.isNotEmpty) {
+          await bluetooth.printCustom(line.trim(), 0, 1);
+        }
+      } else {
+        await bluetooth.printCustom("Terima Kasih", 1, 1);
+        await bluetooth.printCustom("Barang yang sudah dibeli", 0, 1);
+        await bluetooth.printCustom("tidak dapat ditukar/dikembalikan", 0, 1);
+      }
       await bluetooth.printNewLine();
       await bluetooth.printNewLine();
     } catch (e) {
