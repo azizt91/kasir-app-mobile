@@ -4,6 +4,7 @@ import '../../../product/data/models/product_model.dart';
 import '../../../product/data/models/category_model.dart'; // Import CategoryModel
 import '../../../product/domain/repositories/product_repository.dart';
 import 'package:mobile_app/features/transaction/data/repositories/transaction_repository_impl.dart';
+import 'package:mobile_app/core/services/location_service.dart';
 import '../../data/models/customer_model.dart'; // Import CustomerModel
 import '../../data/repositories/customer_repository.dart'; // Import CustomerRepository
 
@@ -259,6 +260,9 @@ class PosBloc extends Bloc<PosEvent, PosState> {
 
   Future<void> _onSubmitTransaction(SubmitTransaction event, Emitter<PosState> emit) async {
     emit(state.copyWith(isLoading: true));
+
+    // Get GPS location (optional, non-blocking)
+    final position = await LocationService.getCurrentLocation();
     
     final itemsList = state.cartItems.map((item) => {
         'product_name': item.product.name, 
@@ -287,6 +291,8 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       'customer_name': event.customerName,
       'note': event.note,
       'created_at': transactionData['created_at'],
+      'latitude': position?.latitude,
+      'longitude': position?.longitude,
     };
 
     final result = await transactionRepository.submitTransaction(apiData);

@@ -5,6 +5,7 @@ import '../../../../core/services/printer_service.dart';
 import '../../../../core/utils/receipt_builder.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../bloc/history_bloc.dart';
 import 'package:mobile_app/core/theme/app_colors.dart';
 
@@ -260,6 +261,43 @@ class _HistoryDetailViewState extends State<HistoryDetailView> {
                     else
                        _buildSummaryRow('Kembali', currency.format((widget.transaction.changeAmount < 0) ? 0 : widget.transaction.changeAmount)),
                     
+                    // Location Link
+                    if (widget.transaction.payload['latitude'] != null && widget.transaction.payload['longitude'] != null) ...[
+                      const Divider(height: 32),
+                      InkWell(
+                        onTap: () async {
+                          final lat = widget.transaction.payload['latitude'];
+                          final lng = widget.transaction.payload['longitude'];
+                          final url = Uri.parse('https://www.google.com/maps?q=$lat,$lng');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.location_on, color: Colors.blue.shade700, size: 20),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: Text(
+                                  'Lihat Lokasi Transaksi',
+                                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                                ),
+                              ),
+                              Icon(Icons.open_in_new, size: 16, color: Colors.blue.shade400),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 20),
                   ],
                 ),
