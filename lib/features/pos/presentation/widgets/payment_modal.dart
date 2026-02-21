@@ -101,7 +101,8 @@ class _PaymentModalState extends State<PaymentModal> {
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     
-    return Scaffold(
+    return SafeArea(
+      child: Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
@@ -407,6 +408,7 @@ class _PaymentModalState extends State<PaymentModal> {
           )
         ],
       ),
+    ),
     );
   }
 

@@ -207,8 +207,8 @@ class _StockViewState extends State<StockView> {
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -220,16 +220,16 @@ class _StockViewState extends State<StockView> {
         children: [
           // Image
           Container(
-             width: 60, height: 60,
+             width: 48, height: 48,
              decoration: BoxDecoration(
                color: Colors.grey[100],
-               borderRadius: BorderRadius.circular(12),
+               borderRadius: BorderRadius.circular(10),
              ),
              child: product.image != null 
-                 ? ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(product.image!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.inventory_2, color: Colors.grey)))
-                 : const Icon(Icons.inventory_2, color: Colors.grey),
+                 ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(product.image!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.inventory_2, color: Colors.grey, size: 20)))
+                 : const Icon(Icons.inventory_2, color: Colors.grey, size: 20),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           // Info
           Expanded(
             child: Column(
@@ -241,12 +241,13 @@ class _StockViewState extends State<StockView> {
                       Expanded(
                         child: Text(
                           product.name,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: statusColor,
                           borderRadius: BorderRadius.circular(8),
@@ -255,8 +256,9 @@ class _StockViewState extends State<StockView> {
                       )
                    ],
                 ),
-                Text('SKU: ${product.barcode ?? "-"}', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                const SizedBox(height: 8),
+                const SizedBox(height: 2),
+                Text('SKU: ${product.barcode ?? "-"}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -264,13 +266,7 @@ class _StockViewState extends State<StockView> {
                          'Price: ${currencyFormatter.format(product.sellingPrice)}', 
                          style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
-                    Column(
-                       crossAxisAlignment: CrossAxisAlignment.end,
-                       children: [
-                          const Text('Stock', style: TextStyle(fontSize: 10, color: Colors.grey)),
-                          Text('${product.stock}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: stockNumColor)),
-                       ],
-                    )
+                    Text('${product.stock}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: stockNumColor)),
                   ],
                 )
               ],
