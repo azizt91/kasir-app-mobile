@@ -358,7 +358,12 @@ class PosView extends StatelessWidget {
                         right: 8,
                         child: GestureDetector(
                             onTap: () {
-                                context.read<PosBloc>().add(UpdateCartQuanity(product, cartQty - 1));
+                                if (isGroup) {
+                                  // For variant groups, re-open picker to let user manage variants
+                                  _showVariantPicker(context, displayName, product.image, variants!);
+                                } else {
+                                  context.read<PosBloc>().add(UpdateCartQuanity(product, cartQty - 1));
+                                }
                             },
                             child: Container(
                                 width: 32, height: 32,
