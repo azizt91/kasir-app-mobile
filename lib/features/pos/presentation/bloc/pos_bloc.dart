@@ -261,8 +261,15 @@ class PosBloc extends Bloc<PosEvent, PosState> {
   Future<void> _onSubmitTransaction(SubmitTransaction event, Emitter<PosState> emit) async {
     emit(state.copyWith(isLoading: true));
 
-    // Get GPS location (optional, non-blocking)
+    // Get GPS location (WAJIB)
     final position = await LocationService.getCurrentLocation();
+    if (position == null) {
+      emit(state.copyWith(
+        isLoading: false, 
+        error: 'Lokasi GPS diperlukan! Aktifkan GPS dan izinkan akses lokasi, lalu coba lagi.',
+      ));
+      return;
+    }
     
     final itemsList = state.cartItems.map((item) => {
         'product_name': item.product.name, 
