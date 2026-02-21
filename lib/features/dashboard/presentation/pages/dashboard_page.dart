@@ -502,46 +502,44 @@ class DashboardPage extends StatelessWidget {
         border: Border(left: BorderSide(color: isCritical ? AppColors.error : AppColors.warning, width: 3)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40, height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: image != null && image.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          image,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 20, color: Colors.grey),
-                        ),
-                      )
-                    : const Icon(Icons.image_not_supported, size: 20, color: Colors.grey),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text.rich(
-                    TextSpan(
-                      text: 'Stok: ',
-                      style: const TextStyle(fontSize: 11, color: AppColors.textGrey),
-                      children: [
-                        TextSpan(text: '$stock pcs', style: TextStyle(color: isCritical ? AppColors.error : AppColors.warning, fontWeight: FontWeight.bold)),
-                      ],
+          Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: image != null && image.isNotEmpty
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 20, color: Colors.grey),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  )
+                : const Icon(Icons.image_not_supported, size: 20, color: Colors.grey),
           ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text.rich(
+                  TextSpan(
+                    text: 'Stok: ',
+                    style: const TextStyle(fontSize: 11, color: AppColors.textGrey),
+                    children: [
+                      TextSpan(text: '$stock pcs', style: TextStyle(color: isCritical ? AppColors.error : AppColors.warning, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
            Container(
              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
              decoration: BoxDecoration(

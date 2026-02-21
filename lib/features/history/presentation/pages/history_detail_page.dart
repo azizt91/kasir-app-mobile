@@ -273,8 +273,14 @@ class _HistoryDetailViewState extends State<HistoryDetailView> {
                           final lat = widget.transaction.payload['latitude'];
                           final lng = widget.transaction.payload['longitude'];
                           final url = Uri.parse('https://www.google.com/maps?q=$lat,$lng');
-                          if (await canLaunchUrl(url)) {
+                          try {
                             await launchUrl(url, mode: LaunchMode.externalApplication);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Tidak dapat membuka Google Maps')),
+                              );
+                            }
                           }
                         },
                         borderRadius: BorderRadius.circular(12),
