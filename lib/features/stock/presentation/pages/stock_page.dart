@@ -31,7 +31,7 @@ class _StockViewState extends State<StockView> {
   // We can treat "Low Stock" as a pseudo-category ID = -1 for UI logic if needed,
   // or just use a separate boolean logic.
   // For the UI request "All Items | Low Stock | Groceries", let's fake the pills visually first.
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +53,7 @@ class _StockViewState extends State<StockView> {
             return Center(child: Text('Error: ${state.message}'));
           } else if (state is StockLoaded) {
             final products = state.filteredProducts;
-            
+
             return Column(
               children: [
                 // Search Bar
@@ -100,10 +100,10 @@ class _StockViewState extends State<StockView> {
                     onRefresh: () async {
                       context.read<StockBloc>().add(LoadStockProducts());
                       // Access to ProductBloc to trigger sync if needed?
-                      // context.read<ProductBloc>().add(SyncProducts()); 
+                      // context.read<ProductBloc>().add(SyncProducts());
                       // But let's just reload local for now as Sync runs in background.
                     },
-                    child: products.isEmpty 
+                    child: products.isEmpty
                       ? ListView(
                           children: const [
                             SizedBox(height: 100),
@@ -136,12 +136,12 @@ class _StockViewState extends State<StockView> {
         onTap: () {
           final bloc = context.read<StockBloc>();
           String filterType = 'all';
-          
+
           if (label == 'Semua') filterType = 'all';
           else if (label == 'Aman') filterType = 'safe';
           else if (label == 'Menipis') filterType = 'low';
           else if (label == 'Habis') filterType = 'empty';
-          
+
           bloc.add(FilterStock(filterType: filterType));
         },
         child: Container(
@@ -169,12 +169,12 @@ class _StockViewState extends State<StockView> {
     // Determine status
     bool isEmpty = product.stock <= 0;
     bool isLow = !isEmpty && (product.stock <= product.minimumStock);
-    
+
     // Status Badge & Text
     // Aman (Safe) -> Green
     // Menipis (Low) -> Orange
     // Habis (Empty) -> Red
-    
+
     Color statusColor;
     Color statusTextColor;
     String statusText;
@@ -192,7 +192,7 @@ class _StockViewState extends State<StockView> {
       statusTextColor = Colors.green; // Or Color(0xFF1B9C5E)
       statusText = 'Aman';
     }
-    
+
     // Stock Number Color
     // User Req: "jika stok barang menipis bagusnya angkanya ikut orange", "hijau untuk angka yang aman"
     Color stockNumColor;
@@ -206,17 +206,26 @@ class _StockViewState extends State<StockView> {
 
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-           BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Row(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StockDetailPage(product: product),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+             BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Row(
         children: [
           // Image
           Container(
@@ -225,7 +234,7 @@ class _StockViewState extends State<StockView> {
                color: Colors.grey[100],
                borderRadius: BorderRadius.circular(10),
              ),
-             child: product.image != null 
+             child: product.image != null
                  ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.network(product.image!, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.inventory_2, color: Colors.grey, size: 20)))
                  : const Icon(Icons.inventory_2, color: Colors.grey, size: 20),
           ),
@@ -263,7 +272,7 @@ class _StockViewState extends State<StockView> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                         'Price: ${currencyFormatter.format(product.sellingPrice)}', 
+                         'Price: ${currencyFormatter.format(product.sellingPrice)}',
                          style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     Text('${product.stock}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: stockNumColor)),
