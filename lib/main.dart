@@ -29,6 +29,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/printer_service.dart'; // Import PrinterService
 import 'firebase_options.dart';
 
 void main() {
@@ -77,10 +78,12 @@ class _AppStarterState extends State<AppStarter> {
     // 4. Dependency Injection (Crucial)
     try {
        await di.init();
+       // Auto-reconnect Bluetooth printer on startup without awaiting to prevent blocking
+       di.sl<PrinterService>().ensureConnected();
     } catch (e) {
        debugPrint("DI Init Error: $e");
     }
-    
+
     // 5. Locale
     await initializeDateFormatting('id_ID', null);
 
@@ -180,7 +183,7 @@ class AuthWrapper extends StatelessWidget {
            // Better practice: do it in BlocListener in Main Page.
            // I'll leave it as is to minimize regression risk.
            context.read<ProductBloc>().add(SyncProducts()); // Keep existing
-            
+
            // Sync FCM Token
            NotificationService().getToken().then((token) {
              if (token != null) {

@@ -17,6 +17,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
   BluetoothDevice? _selectedDevice;
   bool _isConnected = false;
   bool _isLoading = false;
+  Map<String, String>? _savedPrinter;
 
   @override
   void initState() {
@@ -28,12 +29,19 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
     setState(() => _isLoading = true);
     try {
       _devices = await _printerService.getBondedDevices();
-      bool? isConnected = await _printerService.isConnected;
-      _isConnected = isConnected;
+      bool isConnected = await _printerService.isConnected;
+      final savedPrinter = await _printerService.getSavedPrinter();
+
+      if (mounted) {
+        setState(() {
+          _isConnected = isConnected;
+          _savedPrinter = savedPrinter;
+        });
+      }
     } catch (e) {
       debugPrint("Error initializing printer: $e");
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -41,19 +49,20 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
     setState(() => _isLoading = true);
     try {
       bool success = await _printerService.connect(device);
-      setState(() {
-        _isConnected = success;
-        _selectedDevice = success ? device : null;
-      });
+      final savedPrinter = await _printerService.getSavedPrinter();
 
-      if (success) {
-        if (mounted) {
+      if (mounted) {
+        setState(() {
+          _isConnected = success;
+          _selectedDevice = success ? device : null;
+          _savedPrinter = savedPrinter; // Update saved printer state
+        });
+
+        if (success) {
            ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Terhubung ke ${device.name}', style: const TextStyle(color: Colors.white)), backgroundColor: AppColors.success),
           );
-        }
-      } else {
-        if (mounted) {
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Gagal menghubungkan printer'), backgroundColor: AppColors.error),
           );
@@ -62,7 +71,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
     } catch (e) {
        debugPrint("Connection error: $e");
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -70,24 +79,30 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
     setState(() => _isLoading = true);
     try {
       await _printerService.disconnect();
-      setState(() {
-        _isConnected = false;
-        _selectedDevice = null;
-      });
+      if (mounted) {
+        setState(() {
+          _isConnected = false;
+          _selectedDevice = null;
+          _savedPrinter = null; // Clear saved printer
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Printer diputuskan'), backgroundColor: AppColors.success),
+        );
+      }
     } catch (e) {
       debugPrint("Disconnect error: $e");
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
-  
+
   Future<void> _testPrint() async {
      if (!_isConnected) return;
-     
+
      try {
         final service = sl<PrinterService>();
         final bluetooth = service.bluetooth;
-        
+
         await bluetooth.printCustom("TEST PRINT SUCCESS", 1, 1);
         await bluetooth.printNewLine();
         await bluetooth.printCustom("Terima Kasih", 0, 1);
@@ -134,74 +149,103 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Status Printer',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: _isConnected 
-                                    ? AppColors.success.withOpacity(0.1) 
-                                    : AppColors.error.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: _isConnected ? AppColors.success : AppColors.error,
-                                      shape: BoxShape.circle,
-                                    ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _savedPrinter != null ? 'Printer Tersimpan:' : 'Status Printer',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade500,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    _isConnected ? 'Terhubung' : 'Belum Terhubung',
-                                    style: TextStyle(
-                                      fontSize: 12,
+                                ),
+                                if (_savedPrinter != null)
+                                   Text(
+                                    _savedPrinter!['name'] ?? 'Unknown',
+                                    style: const TextStyle(
+                                      fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: _isConnected ? AppColors.success : AppColors.error,
+                                      color: AppColors.textDark,
                                     ),
+                                   ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: _isConnected
+                                        ? AppColors.success.withOpacity(0.1)
+                                        : AppColors.error.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ],
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: BoxDecoration(
+                                          color: _isConnected ? AppColors.success : AppColors.error,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        _isConnected ? 'Terhubung' : 'Belum Terhubung / Terputus',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: _isConnected ? AppColors.success : AppColors.error,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                _isConnected ? Icons.print : Icons.print_disabled,
+                                color: AppColors.primary,
                               ),
                             ),
                           ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
+                        if (_isConnected || _savedPrinter != null) ...[
+                          const SizedBox(height: 16),
+                          const Divider(),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton.icon(
+                                onPressed: _disconnect,
+                                icon: const Icon(Icons.link_off, color: Colors.red),
+                                label: const Text('Putuskan Printer', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
                           ),
-                          child: Icon(
-                            _isConnected ? Icons.print : Icons.print_disabled,
-                            color: AppColors.primary,
-                          ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Search Button
                   ElevatedButton.icon(
                     onPressed: _initPrinter,
-                    icon: _isLoading 
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                    icon: _isLoading
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.bluetooth_searching, size: 24),
                     label: Text(_isLoading ? 'Memindai...' : 'Cari Printer Bluetooth'),
                     style: ElevatedButton.styleFrom(
@@ -246,7 +290,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   if (_devices.isEmpty)
                      Container(
                         padding: const EdgeInsets.all(20),
@@ -266,7 +310,7 @@ class _PrinterSettingsPageState extends State<PrinterSettingsPage> {
                     ..._devices.map((device) => _buildDeviceItem(device)).toList(),
 
                   const SizedBox(height: 48),
-                  
+
                   // Instructions
                   Opacity(
                     opacity: 0.6,
