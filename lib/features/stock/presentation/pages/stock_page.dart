@@ -283,5 +283,5 @@ class _StockViewState extends State<StockView> {
           ),
         ],
       ),
-    );
+    ));
   }
