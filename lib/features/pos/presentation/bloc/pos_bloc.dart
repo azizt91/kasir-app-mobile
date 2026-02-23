@@ -51,13 +51,13 @@ class SubmitTransaction extends PosEvent {
   final DateTime? transactionDate; // (NEW)
 
   SubmitTransaction({
-    required this.paymentMethod, 
+    required this.paymentMethod,
     required this.amountPaid,
     this.customerName,
     this.note,
     this.transactionDate,
   });
-  
+
   @override
   List<Object> get props => [paymentMethod, amountPaid, customerName ?? '', note ?? '', transactionDate.toString()];
 }
@@ -81,9 +81,9 @@ class AddCustomer extends PosEvent {
 class CartItem extends Equatable {
   final ProductModel product;
   final int quantity;
-  
+
   const CartItem({required this.product, required this.quantity});
-  
+
   double get subtotal => product.sellingPrice * quantity;
 
   CartItem copyWith({int? quantity}) {
@@ -97,21 +97,21 @@ class CartItem extends Equatable {
 class PosState extends Equatable {
   final List<ProductModel> allProducts;
   final List<ProductModel> filteredProducts;
-  final List<CategoryModel> categories; 
-  final List<CustomerModel> customers; 
+  final List<CategoryModel> categories;
+  final List<CustomerModel> customers;
   final List<CartItem> cartItems;
-  final int selectedCategoryId; 
+  final int selectedCategoryId;
   final String searchQuery;
   final bool isLoading;
   final String? error;
-  final bool isSuccess; 
-  final Map<String, dynamic>? lastTransaction; 
+  final bool isSuccess;
+  final Map<String, dynamic>? lastTransaction;
 
   const PosState({
     this.allProducts = const [],
     this.filteredProducts = const [],
     this.categories = const [],
-    this.customers = const [], 
+    this.customers = const [],
     this.cartItems = const [],
     this.selectedCategoryId = 0,
     this.searchQuery = '',
@@ -123,13 +123,13 @@ class PosState extends Equatable {
 
   double get subtotal => cartItems.fold(0, (sum, item) => sum + item.subtotal);
   // Add Tax/Discount logic here if needed
-  double get total => subtotal; 
+  double get total => subtotal;
 
   PosState copyWith({
     List<ProductModel>? allProducts,
     List<ProductModel>? filteredProducts,
     List<CategoryModel>? categories,
-    List<CustomerModel>? customers, 
+    List<CustomerModel>? customers,
     List<CartItem>? cartItems,
     int? selectedCategoryId,
     String? searchQuery,
@@ -142,7 +142,7 @@ class PosState extends Equatable {
       allProducts: allProducts ?? this.allProducts,
       filteredProducts: filteredProducts ?? this.filteredProducts,
       categories: categories ?? this.categories,
-      customers: customers ?? this.customers, 
+      customers: customers ?? this.customers,
       cartItems: cartItems ?? this.cartItems,
       selectedCategoryId: selectedCategoryId ?? this.selectedCategoryId,
       searchQuery: searchQuery ?? this.searchQuery,
@@ -160,7 +160,7 @@ class PosState extends Equatable {
 // Bloc
 class PosBloc extends Bloc<PosEvent, PosState> {
   final ProductRepository productRepository;
-  final TransactionRepository transactionRepository; 
+  final TransactionRepository transactionRepository;
   final CustomerRepository customerRepository; // Inject
 
   PosBloc({
@@ -181,7 +181,7 @@ class PosBloc extends Bloc<PosEvent, PosState> {
 
   Future<void> _onLoadData(LoadPosData event, Emitter<PosState> emit) async {
     emit(state.copyWith(isLoading: true));
-    
+
     // Load Products & Categories
     final productsResult = await productRepository.getProducts();
     final categoriesResult = await productRepository.getCategories();
@@ -190,9 +190,9 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     final products = productsResult.getOrElse(() => []);
     final categories = categoriesResult.getOrElse(() => []);
     final customers = customersResult.getOrElse(() => []); // List<CustomerModel>
-    
+
     print('DEBUG: PosBloc Loaded ${customers.length} Customers');
-    
+
     emit(state.copyWith(
       isLoading: false,
       allProducts: products,
@@ -206,12 +206,12 @@ class PosBloc extends Bloc<PosEvent, PosState> {
 
   void _onFilterProducts(FilterProducts event, Emitter<PosState> emit) {
     final categoryId = event.categoryId ?? state.selectedCategoryId;
-    final query = event.query; 
-    
+    final query = event.query;
+
     // Logic to filter
     List<ProductModel> filtered = state.allProducts.where((p) {
       final matchCategory = categoryId == 0 || p.categoryId == categoryId;
-      final matchQuery = p.name.toLowerCase().contains(query.toLowerCase()) || 
+      final matchQuery = p.name.toLowerCase().contains(query.toLowerCase()) ||
                          (p.barcode != null && p.barcode!.contains(query));
       return matchCategory && matchQuery;
     }).toList();
@@ -253,7 +253,7 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     final newCart = state.cartItems.where((item) => item.product.id != event.product.id).toList();
     emit(state.copyWith(cartItems: newCart));
   }
-  
+
   void _onClearCart(ClearCart event, Emitter<PosState> emit) {
     emit(state.copyWith(cartItems: []));
   }
@@ -265,23 +265,23 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     final position = await LocationService.getCurrentLocation();
     if (position == null) {
       emit(state.copyWith(
-        isLoading: false, 
+        isLoading: false,
         error: 'Lokasi GPS diperlukan! Aktifkan GPS dan izinkan akses lokasi, lalu coba lagi.',
       ));
       return;
     }
-    
+
     final itemsList = state.cartItems.map((item) => {
-        'product_name': item.product.name, 
+        'product_name': item.product.name,
         'product_id': item.product.id,
         'quantity': item.quantity,
-        'price': item.product.sellingPrice, 
-        'subtotal': item.subtotal, 
+        'price': item.product.sellingPrice,
+        'subtotal': item.subtotal,
       }).toList();
 
     final transactionData = {
-      'transaction_code': 'OFFLINE-${DateTime.now().millisecondsSinceEpoch}', 
-      'items': itemsList, 
+      'transaction_code': 'OFFLINE-${DateTime.now().millisecondsSinceEpoch}',
+      'items': itemsList,
       'payment_method': event.paymentMethod,
       'amount_paid': event.amountPaid,
       'customer_name': event.customerName,
@@ -290,9 +290,9 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       'note': event.note,
       'created_at': event.transactionDate != null ? event.transactionDate!.toIso8601String() : DateTime.now().toIso8601String(), // Use backdate
     };
-    
+
     final apiData = {
-      'items': itemsList.map((e) => {'product_id': e['product_id'], 'quantity': e['quantity']}).toList(),
+      'items': itemsList.map((e) => {'product_id': e['product_id'], 'quantity': e['quantity'],'product_name': e['product_name']}).toList(),
       'payment_method': event.paymentMethod,
       'amount_paid': event.amountPaid,
       'customer_name': event.customerName,
@@ -303,11 +303,11 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     };
 
     final result = await transactionRepository.submitTransaction(apiData);
-    
+
     result.fold(
       (failure) => emit(state.copyWith(isLoading: false, error: failure.message)),
       (serverData) {
-        // If server returned data, use its transaction_code (TRX...) 
+        // If server returned data, use its transaction_code (TRX...)
         // instead of the OFFLINE-... placeholder
         final printData = Map<String, dynamic>.from(transactionData);
         if (serverData != null) {
@@ -319,10 +319,10 @@ class PosBloc extends Bloc<PosEvent, PosState> {
         }
 
         emit(state.copyWith(
-            isLoading: false, 
-            isSuccess: true, 
+            isLoading: false,
+            isSuccess: true,
             cartItems: [],
-            lastTransaction: printData, 
+            lastTransaction: printData,
         ));
         // Reload products to reflect updated stock
         add(LoadPosData());
@@ -350,15 +350,15 @@ class PosBloc extends Bloc<PosEvent, PosState> {
   Future<void> _onAddCustomer(AddCustomer event, Emitter<PosState> emit) async {
     emit(state.copyWith(isLoading: true));
     final result = await customerRepository.createCustomer(event.name, event.phone);
-    
+
     result.fold(
       (failure) => emit(state.copyWith(isLoading: false, error: failure.message)),
       (newCustomer) {
         final updatedList = List<CustomerModel>.from(state.customers)..insert(0, newCustomer);
         emit(state.copyWith(
-          isLoading: false, 
+          isLoading: false,
           customers: updatedList,
-          // We can optionally set a flag or just let the UI react to the new list 
+          // We can optionally set a flag or just let the UI react to the new list
           // The UI (PaymentModal) might need to know which one was added to auto-select it.
           // But since we prepend it, index 0 is the new one.
         ));

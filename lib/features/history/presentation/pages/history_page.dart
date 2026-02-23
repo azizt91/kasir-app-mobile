@@ -136,13 +136,17 @@ class _HistoryViewState extends State<HistoryView> {
   Widget _buildSummaryCard(List<TransactionModel> transactions) {
     // Calculate today's sales
     final today = DateTime.now();
-    final todayStr = DateFormat('yyyy-MM-dd').format(today);
     
     double todayTotal = 0;
     int todayCount = 0;
 
     for (var tx in transactions) {
-      if (tx.createdAt.startsWith(todayStr) && tx.status != 'void') {
+      // Parse UTC to Local Time before checking if it's today
+      final localDate = DateTime.parse(tx.createdAt).toLocal();
+      final isToday = localDate.year == today.year && localDate.month == today.month && localDate.day == today.day;
+      
+      // Hitung hanya transaksi yang berhasil DAN BUKAN utang
+      if (isToday && tx.status != 'void' && tx.paymentMethod != 'utang') {
         todayTotal += tx.totalAmount;
         todayCount++;
       }

@@ -33,11 +33,14 @@ class HistoryLoaded extends HistoryState {
       : groupedTransactions = groupTransactions(transactions);
 
   static Map<String, List<TransactionModel>> groupTransactions(List<TransactionModel> list) {
-    // Group by Date text (e.g. "YYYY-MM-DD")
+    // Group by Date text in LOCAL time (e.g. "YYYY-MM-DD")
     final Map<String, List<TransactionModel>> groups = {};
     for (var tx in list) {
-       // Extract date part
-       final date = tx.createdAt.substring(0, 10); // Simple substring
+       // Parse UTC to Local Time before extracting date
+       final localDate = DateTime.parse(tx.createdAt).toLocal();
+       // Format back to YYYY-MM-DD
+       final String date = "${localDate.year.toString().padLeft(4, '0')}-${localDate.month.toString().padLeft(2, '0')}-${localDate.day.toString().padLeft(2, '0')}";
+       
        if (!groups.containsKey(date)) {
          groups[date] = [];
        }
